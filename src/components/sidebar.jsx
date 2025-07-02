@@ -7,15 +7,15 @@ export default function Sidebar() {
   const [isUploading, setIsUploading] = useState(false)
   const [username, setUsername] = useState('Greg Wientjes')
 
-  // Load profile from localStorage on mount
+  // Load sidebar profile from localStorage on mount
   useEffect(() => {
-    const userProfile = localStorage.getItem('userProfile')
-    if (userProfile) {
-      const profile = JSON.parse(userProfile)
+    const sidebarProfile = localStorage.getItem('sidebarProfile')
+    if (sidebarProfile) {
+      const profile = JSON.parse(sidebarProfile)
       setProfilePicture(profile.profilePicture)
       setUsername(profile.username || 'Greg Wientjes')
     } else {
-      setUsername('Greg Wientjes') // Default name when no profile exists
+      setUsername('Greg Wientjes') // Default name - always Greg Wientjes for sidebar
     }
   }, [])
 
@@ -54,10 +54,11 @@ export default function Sidebar() {
       const newProfileUrl = urlData.publicUrl
       setProfilePicture(newProfileUrl)
       
-      // Update localStorage
-      const userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}')
-      userProfile.profilePicture = newProfileUrl
-      localStorage.setItem('userProfile', JSON.stringify(userProfile))
+      // Update sidebarProfile localStorage (separate from userProfile)
+      const sidebarProfile = JSON.parse(localStorage.getItem('sidebarProfile') || '{}')
+      sidebarProfile.profilePicture = newProfileUrl
+      sidebarProfile.username = username // Keep the current sidebar username
+      localStorage.setItem('sidebarProfile', JSON.stringify(sidebarProfile))
       
       console.log('Profile picture updated:', newProfileUrl)
     } catch (error) {
