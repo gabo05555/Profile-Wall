@@ -32,12 +32,17 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      {/* Sidebar - Desktop only */}
       <Sidebar />
+
+      {/* Main content */}
       <main className="flex-1 max-w-4xl mx-auto px-6 py-8">
+        {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Social Wall</h1>
           <p className="text-gray-600">Share your thoughts with the community</p>
         </div>
+
         <PostForm onPost={fetchPosts} />
         <PostList posts={posts} onPostDeleted={fetchPosts} />
       </main>

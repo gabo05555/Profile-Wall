@@ -69,7 +69,9 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-80 bg-white shadow-2xl border-r border-gray-100 flex flex-col">
+    <aside className="w-80 bg-white shadow-2xl border-r border-gray-100 flex flex-col"
+    >
+      
       {/* Header */}
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center gap-3 mb-4">
