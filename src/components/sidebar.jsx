@@ -13,7 +13,9 @@ export default function Sidebar() {
     if (userProfile) {
       const profile = JSON.parse(userProfile)
       setProfilePicture(profile.profilePicture)
-      setUsername(profile.username || 'User')
+      setUsername(profile.username || 'Greg Wientjes')
+    } else {
+      setUsername('Greg Wientjes') // Default name when no profile exists
     }
   }, [])
 
