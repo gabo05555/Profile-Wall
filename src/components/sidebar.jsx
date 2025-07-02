@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
+import { defaultAvatar } from '../utils/defaultAvatar'
 
 export default function Sidebar() {
   const [profilePicture, setProfilePicture] = useState(null)
@@ -78,7 +79,7 @@ export default function Sidebar() {
         <div className="text-center">
           <div className="relative mx-auto w-20 h-20 mb-4">
             <img
-              src={profilePicture || "https://via.placeholder.com/80x80/e5e7eb/9ca3af?text=👤"}
+              src={profilePicture || defaultAvatar}
               alt="profile"
               className="rounded-full w-20 h-20 object-cover ring-4 ring-violet-100 shadow-lg"
             />

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
+import { defaultAvatar } from '../utils/defaultAvatar'
 
 export default function PostForm({ onPost }) {
   const [message, setMessage] = useState('')
@@ -80,9 +81,12 @@ export default function PostForm({ onPost }) {
     localStorage.setItem('userProfile', JSON.stringify(userProfile))
     setProfilePicture(profilePictureUrl)
     setShowProfileSetup(false)
+    
+    // Now proceed with posting
+    await performPost(profilePictureUrl)
   }
 
-  const handleProfileSkip = () => {
+  const handleProfileSkip = async () => {
     if (!username.trim()) {
       alert('Please enter your name')
       return
@@ -97,6 +101,53 @@ export default function PostForm({ onPost }) {
     
     localStorage.setItem('userProfile', JSON.stringify(userProfile))
     setShowProfileSetup(false)
+    
+    // Now proceed with posting using default avatar
+    await performPost(null)
+  }
+
+  const performPost = async (currentProfilePicture) => {
+    setIsPosting(true)
+
+    try {
+      const imageUrl = await handleUpload(image, 'post-images')
+      
+      console.log('Final URLs to save:', { imageUrl })
+      
+      const postData = {
+        username: username.trim(),
+        message: message.trim(),
+        image_url: imageUrl || null,
+      }
+      
+      console.log('Submitting post:', postData)
+
+      const { data, error } = await supabase.from('posts').insert([postData]).select()
+
+      if (error) {
+        console.error('Supabase insert error:', error)
+        alert(`Failed to post: ${error.message}`)
+        return
+      }
+
+      console.log('Post successful:', data)
+
+      setMessage('')
+      setImage(null)
+      setTempProfileImage(null) // Clear the temporary profile image
+      // Clear the file inputs
+      const fileInputs = document.querySelectorAll('input[type="file"]')
+      fileInputs.forEach(input => input.value = '')
+      
+      // Keep username for next post - user doesn't need to retype it
+      console.log('Calling onPost callback')
+      onPost?.() // Trigger refresh in parent
+    } catch (error) {
+      console.error('Error posting:', error)
+      alert(`Failed to post: ${error.message || 'Unknown error'}`)
+    } finally {
+      setIsPosting(false)
+    }
   }
 
   const handleUpload = async (file, folder = 'post-images') => {
@@ -140,13 +191,7 @@ export default function PostForm({ onPost }) {
   }
 
   const handleSubmit = async () => {
-    // Check if user has setup profile before posting
-    const userProfile = localStorage.getItem('userProfile')
-    if (!userProfile || !JSON.parse(userProfile).hasSetupProfile) {
-      setShowProfileSetup(true)
-      return
-    }
-
+    // Always ask for profile setup before posting
     if (!username.trim()) {
       alert('Please enter your name')
       return
@@ -157,46 +202,8 @@ export default function PostForm({ onPost }) {
       return
     }
 
-    setIsPosting(true)
-
-    try {
-      const imageUrl = await handleUpload(image, 'post-images')
-      
-      console.log('Final URLs to save:', { imageUrl })
-      
-      const postData = {
-        username: username.trim(),
-        message: message.trim(),
-        image_url: imageUrl || null,
-      }
-      
-      console.log('Submitting post:', postData)
-
-      const { data, error } = await supabase.from('posts').insert([postData]).select()
-
-      if (error) {
-        console.error('Supabase insert error:', error)
-        alert(`Failed to post: ${error.message}`)
-        return
-      }
-
-      console.log('Post successful:', data)
-
-      setMessage('')
-      setImage(null)
-      // Clear the file inputs
-      const fileInputs = document.querySelectorAll('input[type="file"]')
-      fileInputs.forEach(input => input.value = '')
-      
-      // Keep username for next post - user doesn't need to retype it
-      console.log('Calling onPost callback')
-      onPost?.() // Trigger refresh in parent
-    } catch (error) {
-      console.error('Error posting:', error)
-      alert(`Failed to post: ${error.message || 'Unknown error'}`)
-    } finally {
-      setIsPosting(false)
-    }
+    // Always show profile setup modal before posting
+    setShowProfileSetup(true)
   }
 
   // Profile Setup Modal
@@ -231,7 +238,7 @@ export default function PostForm({ onPost }) {
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative">
                   <img
-                    src={tempProfileImage ? URL.createObjectURL(tempProfileImage) : "https://via.placeholder.com/100x100/e5e7eb/9ca3af?text=👤"}
+                    src={tempProfileImage ? URL.createObjectURL(tempProfileImage) : defaultAvatar}
                     alt="Profile preview"
                     className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
                   />

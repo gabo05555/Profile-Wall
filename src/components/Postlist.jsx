@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { defaultAvatar } from '../utils/defaultAvatar'
 
 export default function PostList({ posts, onPostDeleted }) {
   console.log('PostList received posts:', posts)
@@ -90,9 +91,9 @@ export default function PostList({ posts, onPostDeleted }) {
                     const userProfile = localStorage.getItem('userProfile')
                     if (userProfile) {
                       const profile = JSON.parse(userProfile)
-                      return profile.profilePicture || "https://via.placeholder.com/48x48/e5e7eb/9ca3af?text=👤"
+                      return profile.profilePicture || defaultAvatar
                     }
-                    return "https://via.placeholder.com/48x48/e5e7eb/9ca3af?text=👤"
+                    return defaultAvatar
                   })()}
                   alt="avatar"
                   className="w-12 h-12 rounded-full object-cover ring-2 ring-violet-100"
