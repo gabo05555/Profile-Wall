@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react'
+import Sidebar from './components/sidebar'
+import PostForm from './components/Postform'
+import PostList from './components/Postlist'
+import { supabase } from './supabaseClient'
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [posts, setPosts] = useState([])
+
+  const fetchPosts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching posts:', error)
+        return
+      }
+
+      console.log('Fetched posts:', data)
+      setPosts(data || [])
+    } catch (error) {
+      console.error('Error in fetchPosts:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchPosts()
+  }, [])
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="flex min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      <Sidebar />
+      <main className="flex-1 max-w-4xl mx-auto px-6 py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Social Wall</h1>
+          <p className="text-gray-600">Share your thoughts with the community</p>
+        </div>
+        <PostForm onPost={fetchPosts} />
+        <PostList posts={posts} onPostDeleted={fetchPosts} />
+      </main>
+    </div>
   )
 }
-
-export default App
